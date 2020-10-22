@@ -17,8 +17,6 @@ public class MainApp extends Application {
 
     private StageController stageController;
 
-
-
     @Override
     public void start(Stage primaryStage) {
         //新建一个StageController控制器

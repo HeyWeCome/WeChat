@@ -55,7 +55,7 @@ public class MainView implements ControlledStage, Initializable {
     private StageController stageController;
     private ClientModel model;
     private static MainView instance;
-    private boolean pattern = GROUP; //chat model
+    private boolean pattern = GROUP;        //chat model
     private String seletUser = "[group]";
     private static String thisUser;
     private ObservableList<ClientUser> uselist;
@@ -85,7 +85,7 @@ public class MainView implements ControlledStage, Initializable {
         userGroup.setItems(uselist);
         chatWindow.setItems(chatReccder);
         thisUser = model.getThisUser();
-        labUserName.setText("Welcome " + model.getThisUser() + "!");
+        labUserName.setText("欢迎 " + model.getThisUser() + "!");
         btnSend.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -108,21 +108,20 @@ public class MainView implements ControlledStage, Initializable {
 
         userGroup.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             ClientUser user = (ClientUser) newValue;
-            System.out.println("You are selecting " + user.getUserName());
+            System.out.println("你选择了 " + user.getUserName());
             if (user.getUserName().equals("[group]")) {
-                pattern = GROUP;
+                pattern = GROUP;    // 群聊
                 if (!seletUser.equals("[group]")) {
                     model.setChatUser("[group]");
                     seletUser = "[group]";
                     labChatTip.setText("Group Chat");
                 }
             } else {
-                pattern = SINGLE;
+                pattern = SINGLE;   // 单聊
                 if (!seletUser.equals(user.getUserName())) {
                     model.setChatUser(user.getUserName());
                     seletUser = user.getUserName();
-                    labChatTip.setText("Chatting with " + seletUser);
-                    // TODO: 2017/11/29
+                    labChatTip.setText("正在和 " + seletUser+"聊天");
                 }
             }
         });
@@ -172,9 +171,9 @@ public class MainView implements ControlledStage, Initializable {
                         imageHead.setFitWidth(20);
                         ClientUser user = (ClientUser) item;
                         ImageView imageStatus;
-                        if(user.getUserName().equals("[group]")){
+                        if(user.getUserName().equals("[group]")){ // 在线
                             imageStatus = new ImageView(new Image("image/online.png"));
-                        } else if(user.isNotify()==true){
+                        } else if(user.isNotify()==true){ // 有没有信息发给他的
                             imageStatus = new ImageView(new Image("image/message.png"));
                         }else {
                             if(user.getStatus().equals("online")){

@@ -18,55 +18,56 @@ import java.util.*;
 import static com.kang.Utils.Constants.*;
 
 /**
- * @Author com.dyleaf [com.dyleaf.github.io]
- * @ceeate 2017/11/30
- * @description the worker server, deal with the thing of its user
+ * @Author heywecome
+ * @ceeate 2020/10/22
+ * @description 主要的工作服务端，处理具体的业务
  */
 public class WorkServer extends Thread {
 
-    private ServerUser workUser; //the user is connected
-
-    private Socket socket;
-
-    private ArrayList<ServerUser> users;
-
+    private ServerUser workUser;            // 已经连接的用户
+    private Socket socket;                  // 用户的端口信息
+    private ArrayList<ServerUser> users;    // 存放所有的用户信息
     private BufferedReader reader;
-
     private PrintWriter writer;
-
     private boolean isLogOut = false;
-
     private long currentTime = 0;
-
     private Gson gson;
 
+    /**
+     * 构造方法
+     * @param socket
+     * @param users
+     */
     public WorkServer(Socket socket, ArrayList users) {
         super();
         gson = new Gson();
-        this.socket = socket; //bind socket
-        this.users = users;   //get the common user resource
+        this.socket = socket; // 绑定socket
+        this.users = users;   // 获取所有的用户资源
     }
 
     @Override
     public void run() {
-        //todo server's work
+        // 完成服务端的工作
         try {
-            currentTime = new Date().getTime();
+            currentTime = new Date().getTime();                                             // 读取当前的时间
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream(), true);
             String readLine;
             while (true) {
-                //heart check
+                // 心跳检测
+                // 之前考虑上线下线方式的时候想到的一个办法是，下线的时候给服务器发送下线通知，后面考虑了出现断网等突发情况时这样的设计将出现问题。所以采用了心跳连接的方式。
+                // server端采用了以时间差为判断方式的连接判断方式，通过具体的实践server端的时间差为2000ms较为合适.
+                // client维持了500ms的心跳
                 long newTime = new Date().getTime();
-                if (newTime - currentTime > 2000) {
+                if (newTime - currentTime > 2000) { // 超过连接时间2000ms,就退出
                     logOut();
                 } else {
-                    currentTime = newTime;
+                    currentTime = newTime;          // 重新设置心跳
                 }
-                readLine = reader.readLine();
+                readLine = reader.readLine();       // 读取发送过来的请求
                 if (readLine == null)
                     logOut();
-                handleMessage(readLine);
+                handleMessage(readLine);            // 处理发送的请求
                 sentMessageToClient();
                 if (isLogOut) {
                     // kill the I/O stream
@@ -86,12 +87,12 @@ public class WorkServer extends Thread {
 
 
     /**
-     * the message to deal with com.dyleaf.Client's command
-     *
+     * the message to deal with Client's command
+     * 处理信息，根据不同的请求，执行不同的操作
      * @param readLine
      */
     private void handleMessage(String readLine) {
-        System.out.println("handle message" + readLine);
+        System.out.println("处理的信息为：" + readLine);
         Map<Integer, Object> gsonMap = GsonUtils.GsonToMap(readLine);
         Integer command = GsonUtils.Double2Integer((Double) gsonMap.get(COMMAND));
         HashMap map = new HashMap();
@@ -179,24 +180,25 @@ public class WorkServer extends Thread {
                 broadcast(gson.toJson(map), COM_MESSAGEALL);
                 break;
             default:
-//                System.out.println("");
                 break;
         }
     }
 
     /**
-     * @return current time the formatDate String
+     * @return
+     * 当前时间的formatDate字符串
      */
     public String getFormatDate() {
         Date date = new Date();
-        long times = date.getTime();//时间戳
+        long times = date.getTime();        //时间戳
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dateString = formatter.format(date);
         return dateString;
     }
 
     /**
-     * broadcast the message to all user
+     * 将信息广播给所有的用户
+     * 主要就是三种信息：信息、登出、注册并登录。
      *
      * @param message the message
      * @param type    that contain "message", "logOUt", "signUp"
@@ -223,25 +225,27 @@ public class WorkServer extends Thread {
     }
 
     /**
-     * send the message to com.dyleaf.Client
+     * 发送信息给客户端
      */
     private void sentMessageToClient() {
         String message;
         if (workUser != null)
             while ((message = workUser.getMsg()) != null) {
-                writer.println(message); //write it will  auto flush.
+                writer.println(message);    // write的时候会自动刷新
                 System.out.println(workUser.getUserName() + "的数据仓发送 message: " + message + "剩余 size" + workUser.session.size());
             }
     }
 
     /**
-     * the  method to release socket's resource.
+     * 释放socket的资源
      */
     private void logOut() {
+        // 如果当前用户已经被释放了，直接返回
         if (workUser == null)
             return;
+        // 提示当前用户下线
         System.out.println("用户 " + workUser.getUserName() + " 已经离线");
-        // still hold this user and change it's status
+        // 依然保存着这个用户，改变他的状态
         workUser.setStatus("offline");
         for (ServerUser u : users) {
             if (u.getUserName().equals(workUser.getUserName()))
@@ -252,8 +256,7 @@ public class WorkServer extends Thread {
     }
 
     /**
-     * get a random name
-     *
+     * 给一个随机的名字
      * @return
      */
     private String getRandomName() {
@@ -299,11 +302,11 @@ public class WorkServer extends Thread {
                 return false;
             }
         }
-        //add user to userList
+        // 将用户加入用户列表中
         ServerUser newUser = new ServerUser(users.size(), userName, password);
         newUser.setStatus("online");
         users.add(newUser);
-        //  add user to db
+        // 添加用户到数据库
         try {
             UserDaoImpl.getInstance().add(newUser);
         } catch (SQLException e) {
@@ -314,8 +317,7 @@ public class WorkServer extends Thread {
     }
 
     /**
-     * return the json of group
-     *
+     * 返回json格式的用户组
      * @return
      */
     private String getGroup() {

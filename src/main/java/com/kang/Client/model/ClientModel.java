@@ -23,21 +23,25 @@ public class ClientModel {
 
     private BufferedReader reader;
     private PrintWriter writer;
-    private Socket client;
-    private final int port = 8888;
-    private String IP;
-    private boolean isConnect = false;                               //连接标志
+    private Socket client;                              // 客户端
+    private final int port = 8888;                      // 连接的端口号
+    private String IP;                                  // IP地址（尚未用到）
+    private boolean isConnect = false;                  // 连接标志，是否已经连接
     private boolean chatChange = false;
     private String chatUser = "[group]";
-    private String thisUser;
-    private Gson gson;
+    private String thisUser;                            // 当前用户
+    private Gson gson;                                  // Gson是Google提供的用来在 Java 对象和 JSON 数据之间进行映射的 Java 类库。可以将一个 JSON 字符串转成一个 Java 对象，或者反过来。
 
-    private LinkedHashMap<String, ArrayList<Message>> userSession;   //用户消息队列存储用
+    // 不过HashMap有一个问题，就是迭代HashMap的顺序并不是HashMap放置的顺序，也就是无序。
+    // 通过维护一个运行于所有条目的双向链表，LinkedHashMap保证了元素迭代的顺序。该迭代顺序可以是插入顺序或者是访问顺序。
+    private LinkedHashMap<String, ArrayList<Message>> userSession;   // 用户消息队列存储用
     private Thread keepalive = new Thread(new KeepAliveWatchDog());
     private Thread keepreceive = new Thread(new ReceiveWatchDog());
+    private static ClientModel instance;
 
-    private ObservableList<ClientUser> userList;
-    private ObservableList<Message> chatRecoder;
+    //允许侦听器跟踪更改发生的列表。
+    private ObservableList<ClientUser> userList;        // 用户列表
+    private ObservableList<Message> chatRecoder;        // 聊天信息的记录
 
     private ClientModel() {
         super();
@@ -47,13 +51,17 @@ public class ClientModel {
         user.setStatus("");
         userSession = new LinkedHashMap<>();
         userSession.put("[group]", new ArrayList<>());
+
+        // FXCollections 一比一包含了 java.util.Collections中的方法
         userList = FXCollections.observableArrayList();
         chatRecoder = FXCollections.observableArrayList();
         userList.add(user);
     }
 
-    private static ClientModel instance;
-
+    /**
+     * 单例模式，保持唯一的对象
+     * @return
+     */
     public static ClientModel getInstance() {
         if (instance == null) {
             synchronized (ClientModel.class) {
@@ -65,18 +73,21 @@ public class ClientModel {
         return instance;
     }
 
-
+    /**
+     * 设置当前的聊天对象
+     * @param chatUser
+     */
     public void setChatUser(String chatUser) {
         if (!this.chatUser.equals(chatUser))
             chatChange = true;
         this.chatUser = chatUser;
-        //消除未读信息状态
+
+        // 消除未读信息状态
         for (int i = 0; i < userList.size(); i++) {
             ClientUser user = userList.get(i);
             if (user.getUserName().equals(chatUser)) {
-                if (user.isNotify()) {
-                    System.out.println("更改消息目录");
-//                    user.setStatus(user.getStatus().substring(0, user.getStatus().length() - 3));
+                if (user.isNotify()) {  // 已读
+                    System.out.println("更改消息目录"+user.getUserName()+"有信息");
                     userList.remove(i);
                     userList.add(i, user);
                     user.setNotify(false);
@@ -137,7 +148,7 @@ public class ClientModel {
     }
 
     /**
-     * disconnect
+     * 断开连接
      */
     public void disConnect() {
         isConnect = false;
@@ -247,7 +258,6 @@ public class ClientModel {
 
     /**
      * 该方法作废
-     *
      * @param chatUser
      * @return
      */
@@ -263,9 +273,8 @@ public class ClientModel {
     }
 
     /**
-     * sent json string  message to server
-     *
-     * @param message that must be json string
+     * 发送JSON格式的字符串信息给服务端
+     * @param message 必须为JSON格式的
      */
     public void sentMessage(String message) {
         writer.println(message);
@@ -273,13 +282,20 @@ public class ClientModel {
 
 
     /**
+     * 检测登录
+     * IP可以不填写，默认是本机的IP，127.0.0.1
      * @param username
      * @param IP
      * @param buf
      * @return
+     *
+     * 因此我们用gson.fromJson(msg, new TypeToken<Map<String, Object>>() {}.getType())
+     * 将json字符串msg例如:{"id":20,"name":"test"}转换成Map<String,Object>时，
+     * 就会把数字类型的值都转换成了Double类型(此时map中key为“id”的值是一个Double类型，为20.0)
+     * 当我们再把这个Map用gson.toJson转换成json字符串时，奇葩的事情就发生了，不再和我们最开始传进来的json字符串一致了，变成了{"id":20.0,"name":"test"}
      */
     public boolean CheckLogin(String username, String IP, String password, StringBuffer buf, int type) {
-        this.IP = IP; //bind server IP
+        this.IP = IP;           //绑定服务器IP
         Map<Integer, Object> map;
         try {
             //针对多次尝试登录
@@ -289,28 +305,41 @@ public class ClientModel {
                 writer = new PrintWriter(client.getOutputStream(), true);
             }
             map = new HashMap<>();
+
             if (type == 0)
-                map.put(COMMAND, COM_LOGIN);
+                map.put(COMMAND, COM_LOGIN);        // 登录
             else
-                map.put(COMMAND, COM_SIGNUP);
+                map.put(COMMAND, COM_SIGNUP);       // 注册
+
+            // 将用户名密码都存放进入map里面
             map.put(USERNAME, username);
             map.put(PASSWORD, password);
+
+            // 转化为json格式的数据传送出去
             writer.println(gson.toJson(map));
-            String strLine = reader.readLine(); //readline是线程阻塞的
-            System.out.println(strLine);
+            // readline是线程阻塞的，一直等待，检测当前这个账号状态，用户已经注册|用户尚未注册|密码错误|服务器连接失败等...
+            String strLine = reader.readLine();
+            System.out.println("登录信息校验："+strLine);
+            // 将String转化为map对象
             map = GsonUtils.GsonToMap(strLine);
+            // COM_RESULT两种结果，成功则1.0 失败则2.0
             Integer result = GsonUtils.Double2Integer((Double) map.get(COM_RESULT));
+
+            // 如果成功，则允许用户登录系统
             if (result == SUCCESS) {
                 isConnect = true;
-                //request group
+                // 请求分组
                 map.clear();
+                // 放置请求分组的命令
                 map.put(COMMAND, COM_GROUP);
+                // 发送过去，服务端处理
                 writer.println(gson.toJson(map));
-                thisUser = username;
-                keepalive.start();
+                thisUser = username;        // 设置当前的用户名
+                keepalive.start();          // 启动心跳检测
                 keepreceive.start();
                 return true;
             } else {
+                // 将没有登录的原因展示出来，用户已经注册|用户尚未注册|密码错误|服务器连接失败等...
                 String description = (String) map.get(COM_DESCRIPTION);
                 buf.append(description);
                 return false;

@@ -4,16 +4,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- *@Author com.dyleaf [com.dyleaf.github.io]
- *@ceeate 2017/11/30
- * @description
+ *@Author heywecome
+ *@ceeate 2020/10/21
+ *@description
  */
 public class Message implements Serializable{
-
-    private String content = null;
-    private String speaker = null;
-    private String timer = null;
-    private ArrayList<String>imageList = null;
+    private String content = null;              // 聊天的内容
+    private String speaker = null;              // 发言人
+    private String timer = null;                // 发送时间
+    private ArrayList<String>imageList = null;  // 表情
 
     public ArrayList<String> getImageList() {
         return imageList;

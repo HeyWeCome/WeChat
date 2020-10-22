@@ -169,31 +169,31 @@ public class UserDaoImpl implements UserDao {
     }
 
     /**
-     * 查询所有数据
+     * 查询数据库中的所有用户
      */
     @Override
     public List<ServerUser> findAll() throws SQLException {
         Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        ServerUser p = null;
-        List<ServerUser> persons = new ArrayList<ServerUser>();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        ServerUser person = null;
+        List<ServerUser> people = new ArrayList<ServerUser>();
         String sql = "select id,name,password from ChatUser";
+
         try{
             conn = DBUtils.getConnection();
-            ps = conn.prepareStatement(sql);
-            rs = ps.executeQuery();
-            while(rs.next()){
-                p = new ServerUser(rs.getInt(1),rs.getString(2),rs.getString(3));
-                persons.add(p);
+            preparedStatement = conn.prepareStatement(sql);
+            resultSet = preparedStatement.executeQuery();
+            while(resultSet.next()){
+                person = new ServerUser(resultSet.getInt(1),resultSet.getString(2),resultSet.getString(3));
+                people.add(person);
             }
         }catch(SQLException e){
             e.printStackTrace();
-            throw new SQLException("查询所有数据失败");
         }finally{
-            DBUtils.close(rs, ps, conn);
+            DBUtils.close(resultSet, preparedStatement, conn);
         }
-        return persons;
+        return people;
     }
 
 }

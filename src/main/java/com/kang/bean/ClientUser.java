@@ -3,21 +3,14 @@ package com.kang.bean;
 import java.io.Serializable;
 
 /**
- *@Author com.dyleaf [com.dyleaf.github.io]
- *@ceeate 2017/11/30
- * @description  the user model in com.dyleaf.Client
+ *@Author heywecome
+ *@ceeate 2020/10/21
+ * @description  客户端中的用户模型
  */
 public class ClientUser implements Serializable{
-    /**
-     * define username as userID
-     */
-    private String userName;
-    /**
-     * user' status outLine, inLine
-     */
-    private String status;
-
-    private boolean notify;
+    private String userName;  // 用户的名字作为ID
+    private String status;    // 用户的状态：在线，离线
+    private boolean notify;   // 是否聊天
 
     public String getStatus() {
         return status;

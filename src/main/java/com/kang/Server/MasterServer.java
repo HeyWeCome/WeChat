@@ -25,16 +25,18 @@ public class MasterServer {
         try {
             masterServer = new ServerSocket(port);
             try {
+                // 加载所有的用户列表
                 users = (ArrayList<ServerUser>) UserDaoImpl.getInstance().findAll();
+                // 首先全部设置为离线
                 for (ServerUser u:users) {
                     u.setStatus("offline");
                 }
-                System.out.println("get user"+users.size());
+                System.out.println("共读取数据库中用户数："+users.size()+"人");
             } catch (SQLException e) {
-                System.out.println("userList init failed");
+                System.out.println("用户列表初始化失败");
                 e.printStackTrace();
             }
-            System.out.println("server loading");
+            System.out.println("服务器等待连接中...");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -43,7 +45,7 @@ public class MasterServer {
             try {
                 workServer = new WorkServer(masterServer.accept(), users);
                 workServer.start();
-                System.out.println("workServer product");
+                System.out.println("工作端启动一个线程");
             } catch (IOException e) {
                 e.printStackTrace();
             }

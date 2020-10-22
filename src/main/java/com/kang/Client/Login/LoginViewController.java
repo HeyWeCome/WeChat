@@ -42,16 +42,27 @@ public class LoginViewController implements ControlledStage, Initializable {
         super();
     }
 
-
+    /**
+     * 初始化舞台的控制类
+     * @param stageController
+     */
     public void setStageController(StageController stageController) {
         this.myController = stageController;
         model = ClientModel.getInstance();
     }
 
+    /**
+     * 初始化
+     * @param location
+     * @param resources
+     */
     public void initialize(URL location, ResourceBundle resources) {
 
     }
 
+    /**
+     * 加载主界面
+     */
     public void goToMain() {
         myController.loadStage(MainApp.mainViewID,MainApp.mainViewRes);
         myController.setStage(MainApp.mainViewID,MainApp.loginViewID);
@@ -64,6 +75,9 @@ public class LoginViewController implements ControlledStage, Initializable {
         });
     }
 
+    /**
+     * 登录聊天
+     */
     public void logIn() {
         StringBuffer result = new StringBuffer();
         if (model.CheckLogin(txtUsername.getText(), txtHostName.getText(),textPassword.getText(), result, 0)) {
@@ -90,14 +104,21 @@ public class LoginViewController implements ControlledStage, Initializable {
         System.exit(0);
     }
 
+    /**
+     * 展示错误信息
+     * @param error
+     */
     public void showError(String error) {
-        // TODO: 17-11-1
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Wechat");
+        alert.setTitle("QQ");
         alert.setContentText("登录失败 " + error);
         alert.show();
     }
 
+    /**
+     * 注册信息填写
+     * @param actionEvent
+     */
     public void signUp(ActionEvent actionEvent) {
         StringBuffer result = new StringBuffer();
         if (model.CheckLogin(txtUsername.getText(), txtHostName.getText(),textPassword.getText(), result, 1)) {

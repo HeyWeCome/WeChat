@@ -1,13 +1,20 @@
 package com.kang.Utils;
 
-
+/**
+ * 一些常用的变量集合到一个地方
+ * 消息机制
+ * 采用json作为通信载体，后期功能性的更改较为简单
+ * 通信命令字设计如下
+ */
 public class Constants {
     public final static boolean SINGLE = true;
     public final static boolean GROUP = false;
 
+    // 状态
     public final static int SUCCESS = 0x01;
     public final static int FAILED = 0x02;
 
+    // 信息
     public static Integer  COMMAND = 0x10;
     public static Integer  TIME = 0x11;
     public static Integer  USERNAME = 0x12;
@@ -15,6 +22,9 @@ public class Constants {
     public static Integer  SPEAKER = 0x14;
     public static Integer  RECEIVER = 0x15;
     public static Integer  CONTENT= 0x16;
+
+
+    // 命令
     public final static int COM_LOGIN = 0x20;
     public final static int COM_SIGNUP = 0x21;
     public final static int COM_RESULT = 0x22;

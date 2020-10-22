@@ -14,7 +14,7 @@ public class ServerUser {
     private String status;          //用户的状态：离线、在线
 
     // 用户的信息队列
-    private Queue<String> session;
+    public Queue<String> session;
 
     private String password;
 
@@ -52,6 +52,12 @@ public class ServerUser {
         this.status = status;
     }
 
+    /**
+     * 带参构造方法
+     * @param id
+     * @param userName
+     * @param password
+     */
     public ServerUser(int id,String userName,String password) {
         super();
         this.userName = userName;
@@ -66,10 +72,12 @@ public class ServerUser {
         new ServerUser(0, null,null);
     }
 
+    // 添加信息
     public void addMsg(String message) {
         session.offer(message);
     }
 
+    // 获取信息
     public String getMsg() {
         if (session.isEmpty())
             return null;

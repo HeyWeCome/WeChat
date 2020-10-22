@@ -24,18 +24,15 @@ public class StageController {
 
     /**
      * 通过Stage名称获取Stage对象
-     *
      * @param name Stage的名称
      * @return 对应的Stage对象
      */
-    public Stage  getStage(String name) {
+    public Stage getStage(String name) {
         return stages.get(name);
     }
 
-
     /**
      * 将主舞台的对象保存起来，这里只是为了以后可能需要用，目前还不知道用不用得上
-     *
      * @param primaryStageName 设置主舞台的名称
      * @param primaryStage     主舞台对象，在Start()方法中由JavaFx的API建立
      */
@@ -43,10 +40,8 @@ public class StageController {
         this.addStage(primaryStageName, primaryStage);
     }
 
-
     /**
      * 加载窗口地址，需要fxml资源文件属于独立的窗口并用Pane容器或其子类继承
-     *
      * @param name      注册好的fxml窗口的文件
      * @param resources fxml资源地址
      * @param styles    可变参数，init使用的初始化样式资源设置
@@ -61,10 +56,12 @@ public class StageController {
             //通过Loader获取FXML对应的ViewCtr，并将本StageController注入到ViewCtr中
             ControlledStage controlledStage = (ControlledStage) loader.getController();
             controlledStage.setStageController(this);
+
             //构造对应的Stage
             Scene tempScene = new Scene(tempPane);
             Stage tempStage = new Stage();
             tempStage.setScene(tempScene);
+
             //配置initStyle
             for (StageStyle style : styles) {
                 tempStage.initStyle(style);
@@ -82,7 +79,6 @@ public class StageController {
 
     /**
      * 显示Stage但不隐藏任何Stage
-     *
      * @param name 需要显示的窗口的名称
      * @return 是否显示成功
      */
@@ -91,10 +87,8 @@ public class StageController {
         return true;
     }
 
-
     /**
      * 显示Stage并隐藏对应的窗口
-     *
      * @param show  需要显示的窗口
      * @param close 需要删除的窗口
      * @return
@@ -105,10 +99,8 @@ public class StageController {
         return true;
     }
 
-
     /**
      * 在Map中删除Stage加载对象
-     *
      * @param name 需要删除的fxml窗口文件名
      * @return 是否删除成功
      */

@@ -18,12 +18,22 @@ public class GsonUtils {
                 }
             }).create();
 
+    /**
+     * 将String转换成Map
+     * @param data
+     * @return
+     */
     public static Map<Integer, Object> GsonToMap(String data) {
         Map<Integer, Object> map = gson.fromJson(data, new TypeToken<Map<Integer, Object>>() {
         }.getType());
         return map;
     }
 
+    /**
+     * 将double类型的数据转换为integer
+     * @param number
+     * @return
+     */
     public static Integer Double2Integer(Double number){
         return new Integer(number.intValue());
     }
