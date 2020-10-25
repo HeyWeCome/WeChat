@@ -1,4 +1,4 @@
-package com.kang.Dao;
+package com.kang.dao;
 
 import com.kang.bean.ServerUser;
 

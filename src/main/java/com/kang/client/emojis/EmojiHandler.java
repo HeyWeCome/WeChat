@@ -1,4 +1,4 @@
-package com.kang.Client.emojis;
+package com.kang.client.emojis;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

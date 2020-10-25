@@ -1,4 +1,4 @@
-package com.kang.Utils;
+package com.kang.utils;
 
 /**
  * @description:
@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Random;
 
 public class RandomName {
+
     public static void main(String[] args) {
         /**随机产生100个昵称*/
         HashSet<String> set = new HashSet<String>();
@@ -27,6 +28,8 @@ public class RandomName {
         }
 
     }
+
+
     /**方法1*/
     public static String getRandomJianHan(int len) {
         String randomName = "";

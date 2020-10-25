@@ -28,6 +28,4 @@
 - 表情包
 
 ![](http://ox6e8ykxi.bkt.clouddn.com/18-5-6/16077950.jpg)
-
-#### 附注
-设计思想：[java 聊天室WeChat](http://www.cnblogs.com/Dyleaf/p/7955145.html) 
+ 

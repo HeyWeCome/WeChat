@@ -1,11 +1,11 @@
-package com.kang.Client.chatroom;
+package com.kang.client.chatroom;
 
 
-import com.kang.Client.MainApp;
-import com.kang.Client.emojis.EmojiDisplayer;
-import com.kang.Client.model.ClientModel;
-import com.kang.Client.stage.ControlledStage;
-import com.kang.Client.stage.StageController;
+import com.kang.client.MainApp;
+import com.kang.client.emojis.EmojiDisplayer;
+import com.kang.client.model.ClientModel;
+import com.kang.client.controller.ControlledStage;
+import com.kang.client.controller.StageController;
 import com.kang.bean.ClientUser;
 import com.kang.bean.Message;
 import com.google.gson.Gson;
@@ -29,8 +29,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
-import static com.kang.Utils.Constants.*;
-import static com.kang.Utils.Constants.CONTENT;
+import static com.kang.utils.Constants.*;
+import static com.kang.utils.Constants.CONTENT;
 
 public class MainView implements ControlledStage, Initializable {
 
@@ -55,11 +55,11 @@ public class MainView implements ControlledStage, Initializable {
     private StageController stageController;
     private ClientModel model;
     private static MainView instance;
-    private boolean pattern = GROUP;        //chat model
-    private String seletUser = "[group]";
+    private boolean pattern = GROUP;                    // 聊天的模式，默认不是群聊
+    private String seletUser = "[group]";               // 选择的聊天对象，默认是群聊，也可以改成点对点聊天
     private static String thisUser;
-    private ObservableList<ClientUser> uselist;
-    private ObservableList<Message> chatReccder;
+    private ObservableList<ClientUser> uselist;         // 用户列表
+    private ObservableList<Message> chatReccder;        // 聊天信息记录
 
     public MainView() {
         super();
@@ -73,39 +73,41 @@ public class MainView implements ControlledStage, Initializable {
     @Override
     public void setStageController(StageController stageController) {
         this.stageController = stageController;
-        ;
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        model = ClientModel.getInstance();
-        uselist = model.getUserList();
-        chatReccder = model.getChatRecoder();
+        model = ClientModel.getInstance();                              // 获取到唯一的那个对象
+        uselist = model.getUserList();                                  // 加载用户列表
+        chatReccder = model.getChatRecoder();                           // 获取所有的聊天记录
         userGroup.setItems(uselist);
         chatWindow.setItems(chatReccder);
-        thisUser = model.getThisUser();
+        thisUser = model.getThisUser();                                 // 设置当前用户
         labUserName.setText("欢迎 " + model.getThisUser() + "!");
         btnSend.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 if (pattern == GROUP) {
                     HashMap map = new HashMap();
-                    map.put(COMMAND, COM_CHATALL);
-                    map.put(CONTENT, textSend.getText().trim());
-                    model.sentMessage(gson.toJson(map));
+                    map.put(COMMAND, COM_CHATALL);                      // 操作：群聊
+                    map.put(CONTENT, textSend.getText().trim());        // 存放内容，去掉首尾的空白
+                    model.sentMessage(gson.toJson(map));                // 客户端发送信息
                 } else if (pattern == SINGLE) {
                     HashMap map = new HashMap();
-                    map.put(COMMAND, COM_CHATWITH);
-                    map.put(RECEIVER, seletUser);
-                    map.put(SPEAKER, model.getThisUser());
-                    map.put(CONTENT, textSend.getText().trim());
-                    model.sentMessage(gson.toJson(map));
+                    map.put(COMMAND, COM_CHATWITH);                     // 操作：点对点聊天
+                    map.put(RECEIVER, seletUser);                       // 存放：接收者
+                    map.put(SPEAKER, model.getThisUser());              // 存放：发送者
+                    map.put(CONTENT, textSend.getText().trim());        // 存放：聊天的内容
+                    model.sentMessage(gson.toJson(map));                // 客户端开始发送
                 }
-                textSend.setText("");
+                textSend.setText("");                                   // 清空发送框
             }
         });
 
+        /**
+         * 选择用户列表聊天
+         */
         userGroup.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             ClientUser user = (ClientUser) newValue;
             System.out.println("你选择了 " + user.getUserName());
@@ -119,13 +121,16 @@ public class MainView implements ControlledStage, Initializable {
             } else {
                 pattern = SINGLE;   // 单聊
                 if (!seletUser.equals(user.getUserName())) {
-                    model.setChatUser(user.getUserName());
-                    seletUser = user.getUserName();
+                    model.setChatUser(user.getUserName());              // 设置当前的聊天对象
+                    seletUser = user.getUserName();                     // 获取当前对象
                     labChatTip.setText("正在和 " + seletUser+"聊天");
                 }
             }
         });
 
+        /**
+         * 返回聊天的框
+         */
         chatWindow.setCellFactory(new Callback<ListView, ListCell>() {
             @Override
             public ListCell call(ListView param) {
@@ -133,6 +138,9 @@ public class MainView implements ControlledStage, Initializable {
             }
         });
 
+        /**
+         * 返回用户列表
+         */
         userGroup.setCellFactory(new Callback<ListView, ListCell>() {
             @Override
             public ListCell call(ListView param) {
@@ -155,7 +163,6 @@ public class MainView implements ControlledStage, Initializable {
     public Label getLabUserCoumter() {
         return labUserCoumter;
     }
-
 
     public static class UserCell extends ListCell<ClientUser> {
         @Override

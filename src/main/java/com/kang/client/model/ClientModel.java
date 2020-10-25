@@ -1,7 +1,7 @@
-package com.kang.Client.model;
+package com.kang.client.model;
 
-import com.kang.Client.chatroom.MainView;
-import com.kang.Utils.GsonUtils;
+import com.kang.client.chatroom.MainView;
+import com.kang.utils.GsonUtils;
 import com.kang.bean.ClientUser;
 import com.kang.bean.Message;
 import com.google.gson.Gson;
@@ -17,7 +17,7 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.util.*;
 
-import static com.kang.Utils.Constants.*;
+import static com.kang.utils.Constants.*;
 
 public class ClientModel {
 
@@ -28,7 +28,7 @@ public class ClientModel {
     private String IP;                                  // IP地址（尚未用到）
     private boolean isConnect = false;                  // 连接标志，是否已经连接
     private boolean chatChange = false;
-    private String chatUser = "[group]";
+    private String chatUser = "[group]";                // 用户左侧选择的用户，默认为群聊
     private String thisUser;                            // 当前用户
     private Gson gson;                                  // Gson是Google提供的用来在 Java 对象和 JSON 数据之间进行映射的 Java 类库。可以将一个 JSON 字符串转成一个 Java 对象，或者反过来。
 
@@ -40,22 +40,22 @@ public class ClientModel {
     private static ClientModel instance;
 
     //允许侦听器跟踪更改发生的列表。
-    private ObservableList<ClientUser> userList;        // 用户列表
-    private ObservableList<Message> chatRecoder;        // 聊天信息的记录
+    private ObservableList<ClientUser> userList;            // 用户列表
+    private ObservableList<Message> chatRecoder;            // 聊天信息的记录
 
     private ClientModel() {
         super();
         gson = new Gson();
-        ClientUser user = new ClientUser();
+        ClientUser user = new ClientUser();                 // 新建一个群聊对象，因为要加到左侧界面
         user.setUserName("[group]");
         user.setStatus("");
-        userSession = new LinkedHashMap<>();
-        userSession.put("[group]", new ArrayList<>());
+        userSession = new LinkedHashMap<>();                // 存放的是消息，他和谁聊了天，封装的是 JSON 格式的 Message数据
+        userSession.put("[group]", new ArrayList<>());      // 先把群聊的存起来，[group]为群聊的标识符
 
         // FXCollections 一比一包含了 java.util.Collections中的方法
-        userList = FXCollections.observableArrayList();
-        chatRecoder = FXCollections.observableArrayList();
-        userList.add(user);
+        userList = FXCollections.observableArrayList();     // 用户列表
+        chatRecoder = FXCollections.observableArrayList();  // 界面上的聊天框
+        userList.add(user);                                 // 把群聊的对象加入至左侧的界面上的用户列表中
     }
 
     /**
@@ -80,20 +80,21 @@ public class ClientModel {
     public void setChatUser(String chatUser) {
         if (!this.chatUser.equals(chatUser))
             chatChange = true;
-        this.chatUser = chatUser;
+
+        this.chatUser = chatUser;           // 设置当前的聊天对象
 
         // 消除未读信息状态
         for (int i = 0; i < userList.size(); i++) {
             ClientUser user = userList.get(i);
             if (user.getUserName().equals(chatUser)) {
-                if (user.isNotify()) {  // 已读
+                if (user.isNotify()) {      // 显示有消息提示，用户点击之后取消消息提示
                     System.out.println("更改消息目录"+user.getUserName()+"有信息");
-                    userList.remove(i);
-                    userList.add(i, user);
-                    user.setNotify(false);
+                    userList.remove(i);     // 从面板中移除对象，不然面板是不会更新的
+                    userList.add(i, user);  // 重新添加对象
+                    user.setNotify(false);  // 设置用户的通知提示为false
                 }
-                chatRecoder.clear();
-                chatRecoder.addAll(userSession.get(user.getUserName()));
+                chatRecoder.clear();        // 清空当前的面板
+                chatRecoder.addAll(userSession.get(user.getUserName()));    // 将session中的聊天记录，通过用户的名字获取出来
                 break;
             }
         }
@@ -118,7 +119,7 @@ public class ClientModel {
             map.put(COMMAND, COM_KEEP);
             try {
                 System.out.println("keep alive start" + Thread.currentThread());
-                //heartbeat detection
+                // 心跳检测
                 while (isConnect) {
                     Thread.sleep(500);
 //                    System.out.println("500ms keep");
@@ -131,29 +132,37 @@ public class ClientModel {
     }
 
     class ReceiveWatchDog implements Runnable {
-        @Override
-        public void run() {
-            try {
-                System.out.println(" Receieve start" + Thread.currentThread());
-                String message;
-                while (isConnect) {
-                    message = reader.readLine();
-                    // System.out.println("读取服务器信息" + message);
-                    handleMessage(message);
+            @Override
+            public void run() {
+                try {
+                    String message;
+                    while (isConnect) {
+                        // Thread.currentThread表示当前代码段正在被哪个线程调用的相关信息。
+                        System.out.println("接受信息走的是线程：" + Thread.currentThread());
+                        message = reader.readLine();
+                        // System.out.println("读取服务器信息" + message);
+                        handleMessage(message);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-
             }
-        }
     }
 
     /**
      * 断开连接
+     * stop方法不做推荐，最好使用
+     * 就是有一个热水器（对象），本来调的是热水（就是指对象的属性），
+     * 但是这个洗澡的人临时突然有事就出去了，没有继续占用这个热水器，接着下一个进来的人就不想洗热水，
+     * 把热水调成了冷水，这时这个对象属性就发生了改变，就是这种改变，就是所谓其他线程修改了对象
      */
     public void disConnect() {
         isConnect = false;
-        keepalive.stop();
-        keepreceive.stop();
+//        keepalive.stop();
+//        keepreceive.stop();
+        keepalive.interrupt();
+        keepreceive.interrupt();
+
         if (writer != null) {
             writer.close();
             writer = null;
@@ -168,36 +177,43 @@ public class ClientModel {
         }
     }
 
-
+    /**
+     * 处理从服务端发送来的请求
+     * @param message
+     */
     private void handleMessage(String message) {
-        Map<Integer, Object> gsonMap = GsonUtils.GsonToMap(message);
-        Integer command = GsonUtils.Double2Integer((Double) gsonMap.get(COMMAND));
-        Message m;
+        Map<Integer, Object> gsonMap = GsonUtils.GsonToMap(message);                    // 提取服务端的数据，解析json格式
+        Integer command = GsonUtils.Double2Integer((Double) gsonMap.get(COMMAND));      // 获取操作
+        Message m;                                                                      // 存放信息
         switch (command) {
-            case COM_GROUP:
-                HashSet<String> recoder = new HashSet<>();
-                for (ClientUser u : userList) {
-                    if (u.isNotify()) {
-                        recoder.add(u.getUserName());
+            case COM_GROUP:     // 群聊
+                HashSet<String> recoder = new HashSet<>();  // 记录这个人有没有给我发消息，发了的话就加进去
+
+                for (ClientUser u : userList) {             // 遍历
+                    if (u.isNotify()) {                     // 如果有通知信息，就加入到这个里面
+                        recoder.add(u.getUserName());       //
                     }
                 }
-                ArrayList<String> userData = (ArrayList<String>) gsonMap.get(COM_GROUP);
-                userList.remove(1, userList.size());
-                int onlineUserNum = 0;
+
+                ArrayList<String> userData = (ArrayList<String>) gsonMap.get(COM_GROUP);    // 获取所有的用户信息
+                userList.remove(1, userList.size());             // 清空当前的用户列表
+                int onlineUserNum = 0;                           // 现在的在线用户
+
                 for (int i = 0; i < userData.size(); i++) {
                     ClientUser user = new ClientUser();
                     user.setUserName(userData.get(i));
                     user.setStatus(userData.get(++i));
                     if (user.getStatus().equals("online"))
-                        onlineUserNum++;
-                    if (recoder.contains(user.getUserName())) {
+                        onlineUserNum++;                         // 如果在线，在线人数加一
+                    if (recoder.contains(user.getUserName())) {  // 给我发了消息的，改变下状态
                         user.setNotify(true);
                         user.setStatus(user.getStatus() + "(*)");
                     }
                     userList.add(user);
-                    userSession.put(user.getUserName(), new ArrayList<>());
+                    userSession.put(user.getUserName(), new ArrayList<>()); // 消息记录存储
                 }
-                int finalOnlineUserNum = onlineUserNum;
+
+                int finalOnlineUserNum = onlineUserNum;         // 不可更改的在线人数
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
@@ -205,7 +221,7 @@ public class ClientModel {
                     }
                 });
                 break;
-            case COM_CHATALL:
+            case COM_CHATALL:   // 群聊，服务器会不断的发送信息回来，然后添加至聊天信息存储池中
                 m = new Message();
                 m.setTimer((String) gsonMap.get(TIME));
                 m.setSpeaker((String) gsonMap.get(SPEAKER));
@@ -215,22 +231,23 @@ public class ClientModel {
                 }
                 userSession.get("[group]").add(m);
                 break;
-            case COM_CHATWITH:
-                String speaker = (String) gsonMap.get(SPEAKER);
-                String receiver = (String) gsonMap.get(RECEIVER);
-                String time = (String) gsonMap.get(TIME);
-                String content = (String) gsonMap.get(CONTENT);
+            case COM_CHATWITH:  // 单聊
+                String speaker = (String) gsonMap.get(SPEAKER);         // 读取发送信息的人
+                String receiver = (String) gsonMap.get(RECEIVER);       // 读取接受信息的人
+                String time = (String) gsonMap.get(TIME);               // 读取发送的时间
+                String content = (String) gsonMap.get(CONTENT);         // 读取发送的内容
+
                 m = new Message();
                 m.setSpeaker(speaker);
                 m.setContent(content);
                 m.setTimer(time);
-                if (thisUser.equals(receiver)) {
-                    if (!chatUser.equals(speaker)) {
-                        for (int i = 0; i < userList.size(); i++) {
+
+                if (thisUser.equals(receiver)) {                        // 如果这个信息就是发给我的
+                    if (!chatUser.equals(speaker)) {                    // 如果左侧选的用户不是发送的人
+                        for (int i = 0; i < userList.size(); i++) {     // 寻找这个人，然后设置提示信息，小喇叭
                             if (userList.get(i).getUserName().equals(speaker)) {
                                 ClientUser user = userList.get(i);
                                 if (!user.isNotify()) {
-                                    //user.setStatus(userList.get(i).getStatus() + "(*)");
                                     user.setNotify(true);
                                 }
                                 userList.remove(i);
@@ -238,15 +255,15 @@ public class ClientModel {
                                 break;
                             }
                         }
-                        System.out.println("标记未读");
-                    }else{
+                        System.out.println("标记"+speaker+"发送的信息未读");
+                    }else{  // 如果发言双方都是目前窗口已经选择好的用户，那么可以直接添加信息
                         chatRecoder.add(m);
                     }
-                    userSession.get(speaker).add(m);
-                }else{
-                    if(chatUser.equals(receiver))
-                        chatRecoder.add(m);
-                    userSession.get(receiver).add(m);
+                    userSession.get(speaker).add(m);       // 去消息存储中找到发言人，然后把信息存储起来
+                }else{  // 如果当前用户不是接收人，那就是发送人
+                    if(chatUser.equals(receiver))       // 左侧选择的用户是接收人
+                        chatRecoder.add(m);             // 直接在界面上显示
+                    userSession.get(receiver).add(m);   // 找到接收人，把信息放进去
                 }
                 break;
             default:
@@ -292,7 +309,8 @@ public class ClientModel {
      * 因此我们用gson.fromJson(msg, new TypeToken<Map<String, Object>>() {}.getType())
      * 将json字符串msg例如:{"id":20,"name":"test"}转换成Map<String,Object>时，
      * 就会把数字类型的值都转换成了Double类型(此时map中key为“id”的值是一个Double类型，为20.0)
-     * 当我们再把这个Map用gson.toJson转换成json字符串时，奇葩的事情就发生了，不再和我们最开始传进来的json字符串一致了，变成了{"id":20.0,"name":"test"}
+     * 当我们再把这个Map用gson.toJson转换成json字符串时，奇葩的事情就发生了，
+     * 不再和我们最开始传进来的json字符串一致了，变成了{"id":20.0,"name":"test"}
      */
     public boolean CheckLogin(String username, String IP, String password, StringBuffer buf, int type) {
         this.IP = IP;           //绑定服务器IP

@@ -1,4 +1,4 @@
-package com.kang.Client.emojis;
+package com.kang.client.emojis;
 
 import javafx.scene.image.Image;
 

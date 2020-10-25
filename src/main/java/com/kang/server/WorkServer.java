@@ -1,7 +1,7 @@
-package com.kang.Server;
+package com.kang.server;
 
-import com.kang.Dao.UserDaoImpl;
-import com.kang.Utils.GsonUtils;
+import com.kang.dao.UserDaoImpl;
+import com.kang.utils.GsonUtils;
 import com.kang.bean.ServerUser;
 import com.google.gson.Gson;
 
@@ -15,7 +15,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.kang.Utils.Constants.*;
+import static com.kang.utils.Constants.*;
 
 /**
  * @Author heywecome
@@ -24,7 +24,7 @@ import static com.kang.Utils.Constants.*;
  */
 public class WorkServer extends Thread {
 
-    private ServerUser workUser;            // 已经连接的用户
+    private ServerUser workUser;            // 当前已经连接的用户
     private Socket socket;                  // 用户的端口信息
     private ArrayList<ServerUser> users;    // 存放所有的用户信息
     private BufferedReader reader;
@@ -68,9 +68,8 @@ public class WorkServer extends Thread {
                 if (readLine == null)
                     logOut();
                 handleMessage(readLine);            // 处理发送的请求
-                sentMessageToClient();
-                if (isLogOut) {
-                    // kill the I/O stream
+                sentMessageToClient();              // 发送信息给客户端
+                if (isLogOut) {                     // 关闭I/O流
                     reader.close();
                     writer.close();
                     break;
@@ -85,99 +84,103 @@ public class WorkServer extends Thread {
         }
     }
 
-
     /**
      * the message to deal with Client's command
      * 处理信息，根据不同的请求，执行不同的操作
      * @param readLine
      */
     private void handleMessage(String readLine) {
-        System.out.println("处理的信息为：" + readLine);
-        Map<Integer, Object> gsonMap = GsonUtils.GsonToMap(readLine);
-        Integer command = GsonUtils.Double2Integer((Double) gsonMap.get(COMMAND));
-        HashMap map = new HashMap();
-        String username, password;
+//        System.out.println("处理的信息为：" + readLine);
+        Map<Integer, Object> gsonMap = GsonUtils.GsonToMap(readLine);               // 将传来的数据读取出来
+        Integer command = GsonUtils.Double2Integer((Double) gsonMap.get(COMMAND));  // 获取指令
+
+        HashMap map = new HashMap();    //
+        String userName;                // 用户名
+        String password;                // 密码
+
         switch (command) {
-            case COM_GROUP:
+            case COM_GROUP:         // 获取在线用户列表
                 writer.println(getGroup());
                 System.out.println(workUser.getUserName() + "请求获得在线用户详情");
                 break;
-            case COM_SIGNUP:
-                username = (String) gsonMap.get(USERNAME);
+            case COM_SIGNUP:        // 注册
+                userName = (String) gsonMap.get(USERNAME);
                 password = (String) gsonMap.get(PASSWORD);
                 map.put(COMMAND, COM_RESULT);
-                if (createUser(username, password)) {
-                    //需要马上变更心跳
+                if (createUser(userName, password)) {
+                    // 需要马上变更心跳
                     currentTime = new Date().getTime();
-                    //存储信息
+                    // 存储信息
                     map.put(COM_RESULT, SUCCESS);
                     map.put(COM_DESCRIPTION, "success");
                     writer.println(gson.toJson(map));
                     broadcast(getGroup(),COM_SIGNUP);
-                    System.out.println("用户" + username + "注册上线了");
+                    System.out.println("用户" + userName + "注册上线了");
                 } else {
+                    // 注册失败，也就是这个用户已经被注册了
                     map.put(COM_RESULT, FAILED);
-                    map.put(COM_DESCRIPTION, username + "已经被注册");
-                    writer.println(gson.toJson(map)); //返回消息给服务器
-                    System.out.println(username + "该用户已经被注册");
+                    map.put(COM_DESCRIPTION, userName + "已经被注册");
+                    writer.println(gson.toJson(map)); //返回消息给客户端
+                    System.out.println(userName + "该用户已经被注册");
                 }
                 break;
-            case COM_LOGIN:
-                username = (String) gsonMap.get(USERNAME);
+            case COM_LOGIN:         // 登录
+                userName = (String) gsonMap.get(USERNAME);
                 password = (String) gsonMap.get(PASSWORD);
                 boolean find = false;
-                for (ServerUser u : users) {
-                    if (u.getUserName().equals(username)) {
-                        if (!u.getPassword().equals(password)) {
+                for (ServerUser user : users) {
+                    if (user.getUserName().equals(userName)) {
+                        if (!user.getPassword().equals(password)) {
                             map.put(COM_DESCRIPTION, "账号密码输入有误");
                             break;
                         }
-                        if (u.getStatus().equals("online")) {
+                        if (user.getStatus().equals("online")) {
                             map.put(COM_DESCRIPTION, "该用户已经登录");
                             break;
                         }
-                        currentTime = new Date().getTime();
-                        map.put(COM_RESULT, SUCCESS);
-                        map.put(COM_DESCRIPTION, username + "success");
-                        u.setStatus("online");
-                        writer.println(gson.toJson(map));
-                        workUser = u;
-                        broadcast(getGroup(), COM_SIGNUP);
-                        find = true;
-                        System.out.println("用户" + username + "上线了");
+                        currentTime = new Date().getTime();                 // 变更心跳时间
+                        map.put(COM_RESULT, SUCCESS);                       // 设置操作结果为成功
+                        map.put(COM_DESCRIPTION, userName + "success");     // 添加操作成功的描述
+                        user.setStatus("online");                           // 设置用户的状态为在线
+                        writer.println(gson.toJson(map));                   // 发送给客户端
+                        workUser = user;                                    // 绑定当前的账号
+                        broadcast(getGroup(), COM_SIGNUP);                  // 广播给所有的用户，当前账号注册成功并登录
+                        find = true;                                        // 找到了该用户的注册信息
+                        System.out.println("用户" + userName + "上线了");   // 控制台打印信息，记录
                         break;
                     }
                 }
-                if (!find) {
-                    map.put(COM_RESULT, FAILED);
+                if (!find) {                                                // 如果没有找到这个用户
+                    map.put(COM_RESULT, FAILED);                            // 设置操作的结果为failed
                     if (!map.containsKey(COM_DESCRIPTION))
-                        map.put(COM_DESCRIPTION, username + "未注册");
-                    writer.println(gson.toJson(map)); //返回消息给服务器
+                        map.put(COM_DESCRIPTION, userName + "未注册");
+                    writer.println(gson.toJson(map));                       // 返回消息给服务器
                 }
                 break;
-            case COM_CHATWITH:
-                String receiver = (String) gsonMap.get(RECEIVER);
-                map = new HashMap();
-                map.put(COMMAND, COM_CHATWITH);
-                map.put(SPEAKER, gsonMap.get(SPEAKER));
-                map.put(RECEIVER, gsonMap.get(RECEIVER));
-                map.put(CONTENT, gsonMap.get(CONTENT));
-                map.put(TIME, getFormatDate());
-                for (ServerUser u : users) {
+            case COM_CHATWITH:          // 单聊
+                String receiver = (String) gsonMap.get(RECEIVER);           // 获取想要聊天的对象
+                map = new HashMap();                                        // 存放一些必要的信息
+                map.put(COMMAND, COM_CHATWITH);                             // 当前的操作命令为：单聊
+                map.put(SPEAKER, gsonMap.get(SPEAKER));                     // 存放当前的发言人
+                map.put(RECEIVER, gsonMap.get(RECEIVER));                   // 存放想要聊天的对象
+                map.put(CONTENT, gsonMap.get(CONTENT));                     // 存放聊天发送的内容
+                map.put(TIME, getFormatDate());                             // 存放发送聊天信息的时间
+
+                for (ServerUser u : users) {                                // 查找想要聊天的对象
                     if (u.getUserName().equals(receiver)) {
-                        u.addMsg(gson.toJson(map));
+                        u.addMsg(gson.toJson(map));                         // 把信息发送过去
                         break;
                     }
                 }
-                workUser.addMsg(gson.toJson(map));
+                workUser.addMsg(gson.toJson(map));                          // 自己也记录下刚才自己发言内容
                 break;
-            case COM_CHATALL:
+            case COM_CHATALL:           // 群聊
                 map = new HashMap();
-                map.put(COMMAND, COM_CHATALL);
-                map.put(SPEAKER, workUser.getUserName());
-                map.put(TIME, getFormatDate());
-                map.put(CONTENT, gsonMap.get(CONTENT));
-                broadcast(gson.toJson(map), COM_MESSAGEALL);
+                map.put(COMMAND, COM_CHATALL);                              // 存放操作命令：群聊
+                map.put(SPEAKER, workUser.getUserName());                   // 存放当前的发言人：即当前用户
+                map.put(TIME, getFormatDate());                             // 获取当前的时间
+                map.put(CONTENT, gsonMap.get(CONTENT));                     // 存放发言的内容
+                broadcast(gson.toJson(map), COM_MESSAGEALL);                // 开始广播
                 break;
             default:
                 break;
@@ -201,7 +204,7 @@ public class WorkServer extends Thread {
      * 主要就是三种信息：信息、登出、注册并登录。
      *
      * @param message the message
-     * @param type    that contain "message", "logOUt", "signUp"
+     * @param type    that contain "message", "logOut", "signUp"
      */
     private void broadcast(String message, int type) {
         System.out.println(workUser.getUserName() + " 开始广播broadcast " + message);
@@ -221,7 +224,6 @@ public class WorkServer extends Thread {
                 }
                 break;
         }
-
     }
 
     /**
@@ -229,10 +231,13 @@ public class WorkServer extends Thread {
      */
     private void sentMessageToClient() {
         String message;
+
         if (workUser != null)
             while ((message = workUser.getMsg()) != null) {
                 writer.println(message);    // write的时候会自动刷新
-                System.out.println(workUser.getUserName() + "的数据仓发送 message: " + message + "剩余 size" + workUser.session.size());
+                System.out.println("============================================");
+                System.out.println("发送给:"+workUser.getUserName() + " 的信息为: " + message + "剩余 size：" + workUser.session.size());
+                System.out.println("============================================");
             }
     }
 
@@ -290,18 +295,19 @@ public class WorkServer extends Thread {
     }
 
     /**
-     * create username and bind userName . if failed it will return failed.
-     * if success it will add to users.
-     *
+     * 创建用户名并且绑定用户名，如果失败就会返回failed
+     * 如果成功，会添加到用户中
      * @param userName
      * @return
      */
     private boolean createUser(String userName, String password) {
+        // 先检查是否已经存在这个用户，如果已经存在，则直接返回false
         for (ServerUser user : users) {
             if (user.getUserName().equals(userName)) {
                 return false;
             }
         }
+
         // 将用户加入用户列表中
         ServerUser newUser = new ServerUser(users.size(), userName, password);
         newUser.setStatus("online");
@@ -318,6 +324,7 @@ public class WorkServer extends Thread {
 
     /**
      * 返回json格式的用户组
+     * 格式为：用户名，状态
      * @return
      */
     private String getGroup() {

@@ -1,6 +1,6 @@
-package com.kang.Server;
+package com.kang.server;
 
-import com.kang.Dao.UserDaoImpl;
+import com.kang.dao.UserDaoImpl;
 import com.kang.bean.ServerUser;
 
 import java.io.IOException;
@@ -9,16 +9,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class MasterServer {
-
-    /**
-     * 用户列表
-     */
-    private ArrayList<ServerUser> users;
-
+    private ArrayList<ServerUser> users; // 用户列表
     public ServerSocket masterServer;
     public WorkServer workServer;
 
-    private int port = 8888;
+    private int port = 8888;             // 确认连接的端口号
 
     public void start() {
         users = new ArrayList<ServerUser>();

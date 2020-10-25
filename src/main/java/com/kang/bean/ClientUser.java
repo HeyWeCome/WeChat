@@ -10,7 +10,7 @@ import java.io.Serializable;
 public class ClientUser implements Serializable{
     private String userName;  // 用户的名字作为ID
     private String status;    // 用户的状态：在线，离线
-    private boolean notify;   // 是否聊天
+    private boolean notify;   // 是否有消息发送过来
 
     public String getStatus() {
         return status;

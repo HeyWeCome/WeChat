@@ -1,5 +1,6 @@
-package com.kang.Client.stage;
+package com.kang.client.controller;
 
+import com.kang.client.controller.ControlledStage;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;

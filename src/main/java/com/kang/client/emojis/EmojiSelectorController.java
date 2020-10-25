@@ -1,4 +1,4 @@
-package com.kang.Client.emojis;
+package com.kang.client.emojis;
 
 import java.io.IOException;
 import java.net.URL;
@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 
-import com.kang.Client.chatroom.MainView;
-import com.kang.Client.stage.ControlledStage;
-import com.kang.Client.stage.StageController;
+import com.kang.client.chatroom.MainView;
+import com.kang.client.controller.ControlledStage;
+import com.kang.client.controller.StageController;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

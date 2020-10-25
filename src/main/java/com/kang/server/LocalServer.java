@@ -1,4 +1,4 @@
-package com.kang.Server;
+package com.kang.server;
 
 public class LocalServer {
 

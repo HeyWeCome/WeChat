@@ -1,11 +1,12 @@
-package com.kang.Client;
+package com.kang.client;
 
-import com.kang.Client.stage.StageController;
+import com.kang.client.controller.StageController;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 public class MainApp extends Application {
+    // 所有界面以及静态资源地址都存放在这里面
     public static String mainViewID = "MainView";
     public static String mainViewRes = "/MainView.fxml";
 

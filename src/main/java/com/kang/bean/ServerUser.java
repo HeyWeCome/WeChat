@@ -63,7 +63,7 @@ public class ServerUser {
         this.userName = userName;
         this.id = id;
         this.password = password;
-        //Ensure thread concurrent security
+        // 保证线程池的安全性
         session = new ConcurrentLinkedQueue();
     }
 

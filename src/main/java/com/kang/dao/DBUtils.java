@@ -1,4 +1,4 @@
-package com.kang.Dao;
+package com.kang.dao;
 
 import java.io.IOException;
 import java.io.InputStream;

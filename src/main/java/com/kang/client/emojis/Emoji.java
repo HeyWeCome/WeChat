@@ -1,4 +1,4 @@
-package com.kang.Client.emojis;
+package com.kang.client.emojis;
 
 import com.google.gson.annotations.SerializedName;
 /**
@@ -19,8 +19,6 @@ public class Emoji {
 	private int emojiOrder;
 	//emoji的分类
 	private String category;
-
-
 
 	public String getShortname() {
 		return shortname;

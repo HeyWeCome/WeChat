@@ -1,9 +1,7 @@
-package com.kang.Client.Login;
+package com.kang.client.controller;
 
-import com.kang.Client.model.ClientModel;
-import com.kang.Client.stage.ControlledStage;
-import com.kang.Client.MainApp;
-import com.kang.Client.stage.StageController;
+import com.kang.client.model.ClientModel;
+import com.kang.client.MainApp;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

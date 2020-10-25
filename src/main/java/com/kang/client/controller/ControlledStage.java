@@ -1,4 +1,4 @@
-package com.kang.Client.stage;
+package com.kang.client.controller;
 
 public interface ControlledStage {
     public void setStageController(StageController stageController);
