@@ -7,6 +7,7 @@
 <?import javafx.scene.text.*?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kang.client.view.MainView">
+
    <left>
       <VBox prefHeight="300.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
