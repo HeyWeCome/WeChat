@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class ServerUser {
 
     private String userName;        // 用户的姓名作为用户的ID
-    private String status;          //用户的状态：离线、在线
+    private String status;          // 用户的状态：离线、在线
 
     // 用户的信息队列
     public Queue<String> session;

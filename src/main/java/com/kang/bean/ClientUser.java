@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  *@Author heywecome
  *@ceeate 2020/10/21
- * @description  客户端中的用户模型
+ *@description  客户端中的用户模型，用于界面上用户的控制
  */
 public class ClientUser implements Serializable{
     private String userName;  // 用户的名字作为ID

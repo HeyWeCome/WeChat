@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 
-import com.kang.client.chatroom.MainView;
+import com.kang.client.view.MainView;
 import com.kang.client.controller.ControlledStage;
 import com.kang.client.controller.StageController;
 import javafx.animation.ScaleTransition;

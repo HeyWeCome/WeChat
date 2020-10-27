@@ -1,10 +1,11 @@
-package com.kang.client.model;
+package com.kang.client.net;
 
-import com.kang.client.chatroom.MainView;
+import com.kang.client.view.MainView;
 import com.kang.utils.GsonUtils;
 import com.kang.bean.ClientUser;
 import com.kang.bean.Message;
 import com.google.gson.Gson;
+import com.kang.utils.PlaySound;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,10 +17,11 @@ import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static com.kang.utils.Constants.*;
 
-public class ClientModel {
+public class Client {
 
     private BufferedReader reader;
     private PrintWriter writer;
@@ -37,13 +39,13 @@ public class ClientModel {
     private LinkedHashMap<String, ArrayList<Message>> userSession;   // 用户消息队列存储用
     private Thread keepalive = new Thread(new KeepAliveWatchDog());
     private Thread keepreceive = new Thread(new ReceiveWatchDog());
-    private static ClientModel instance;
+    private static Client instance;
 
     //允许侦听器跟踪更改发生的列表。
     private ObservableList<ClientUser> userList;            // 用户列表
     private ObservableList<Message> chatRecoder;            // 聊天信息的记录
 
-    private ClientModel() {
+    private Client() {
         super();
         gson = new Gson();
         ClientUser user = new ClientUser();                 // 新建一个群聊对象，因为要加到左侧界面
@@ -62,11 +64,11 @@ public class ClientModel {
      * 单例模式，保持唯一的对象
      * @return
      */
-    public static ClientModel getInstance() {
+    public static Client getInstance() {
         if (instance == null) {
-            synchronized (ClientModel.class) {
+            synchronized (Client.class) {
                 if (instance == null) {
-                    instance = new ClientModel();
+                    instance = new Client();
                 }
             }
         }
@@ -112,6 +114,9 @@ public class ClientModel {
         return thisUser;
     }
 
+    /**
+     * 不断监听，每隔500ms都给服务器发送个数据
+     */
     class KeepAliveWatchDog implements Runnable {
         @Override
         public void run() {
@@ -131,6 +136,9 @@ public class ClientModel {
         }
     }
 
+    /**
+     * 不断监听，从服务器读取数据
+     */
     class ReceiveWatchDog implements Runnable {
             @Override
             public void run() {
@@ -151,7 +159,7 @@ public class ClientModel {
 
     /**
      * 断开连接
-     * stop方法不做推荐，最好使用
+     * stop方法不做推荐，最好使用 interrupt
      * 就是有一个热水器（对象），本来调的是热水（就是指对象的属性），
      * 但是这个洗澡的人临时突然有事就出去了，没有继续占用这个热水器，接着下一个进来的人就不想洗热水，
      * 把热水调成了冷水，这时这个对象属性就发生了改变，就是这种改变，就是所谓其他线程修改了对象
@@ -252,6 +260,16 @@ public class ClientModel {
                                 }
                                 userList.remove(i);
                                 userList.add(i, user);
+
+                                // 设置播放提示音
+                                PlaySound playSound = new PlaySound(MESSAGE_NOFITY);
+                                playSound.play();
+                                try {
+                                    TimeUnit.MILLISECONDS.sleep(1000);//毫秒
+                                    playSound.stop();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                                 break;
                             }
                         }

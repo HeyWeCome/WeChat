@@ -15,14 +15,16 @@ public class Constants {
     public final static int FAILED = 0x02;
 
     // 信息
-    public static Integer  COMMAND = 0x10;          // 16
-    public static Integer  TIME = 0x11;             // 17
-    public static Integer  USERNAME = 0x12;         // 18
-    public static Integer  PASSWORD = 0x13;         // 19
-    public static Integer  SPEAKER = 0x14;          // 20
-    public static Integer  RECEIVER = 0x15;         // 21
-    public static Integer  CONTENT= 0x16;           // 22
-
+    public static Integer COMMAND = 0x10;                 // 16
+    public static Integer TIME = 0x11;                    // 17
+    public static Integer USERNAME = 0x12;                // 18
+    public static Integer PASSWORD = 0x13;                // 19
+    public static Integer SPEAKER = 0x14;                 // 20
+    public static Integer RECEIVER = 0x15;                // 21
+    public static Integer CONTENT = 0x16;                 // 22
+    public static Integer ACCOUNT = 0x17;                 // 23  账号
+    public static Integer ONLINE_NOTIFY = 0x18;           // 24 上线提示音
+    public static Integer MESSAGE_NOFITY = 0X19;          // 25 消息提示音
 
     // 命令
     public final static int COM_LOGIN = 0x20;       // 32

@@ -1,5 +1,6 @@
 #### 设计说明
-[toc]
+基于socket编程的简单聊天实现
+
 #### 功能和特性
 - 基于socket实现的c/s架构的的通信
 - 服务器和客户心跳连接
@@ -12,20 +13,9 @@
 - ~~实现文件传输~~
 - ~~文件记录~~
 
-#### 功能展示
-- login
-
-![](http://ox6e8ykxi.bkt.clouddn.com/18-5-6/75566823.jpg)
-
-- chatroom
-
-![](http://ox6e8ykxi.bkt.clouddn.com/18-5-6/47280334.jpg)
-
-![](http://ox6e8ykxi.bkt.clouddn.com/18-5-6/37373360.jpg)
-
-![](http://ox6e8ykxi.bkt.clouddn.com/18-5-6/47028216.jpg)
-
-- 表情包
-
-![](http://ox6e8ykxi.bkt.clouddn.com/18-5-6/16077950.jpg)
- 
+#### 待办
+- 添加好友；
+- 重构数据库，利用账号登录，而非姓名；
+- 发送消息，用户接受到消息的时候声音提示；
+- 右下角弹窗提示：谁谁谁上线了 
+- 语音聊天

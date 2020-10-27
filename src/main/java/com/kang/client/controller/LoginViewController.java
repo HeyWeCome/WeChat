@@ -1,6 +1,6 @@
 package com.kang.client.controller;
 
-import com.kang.client.model.ClientModel;
+import com.kang.client.net.Client;
 import com.kang.client.MainApp;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -34,7 +34,7 @@ public class LoginViewController implements ControlledStage, Initializable {
     Button btn_signIn;
 
     StageController myController;
-    ClientModel model;
+    Client model;
 
     public LoginViewController() {
         super();
@@ -46,7 +46,7 @@ public class LoginViewController implements ControlledStage, Initializable {
      */
     public void setStageController(StageController stageController) {
         this.myController = stageController;
-        model = ClientModel.getInstance();
+        model = Client.getInstance();
     }
 
     /**

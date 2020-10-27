@@ -53,6 +53,7 @@ public class WorkServer extends Thread {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream(), true);
             String readLine;
+
             while (true) {
                 // 心跳检测
                 // 之前考虑上线下线方式的时候想到的一个办法是，下线的时候给服务器发送下线通知，后面考虑了出现断网等突发情况时这样的设计将出现问题。所以采用了心跳连接的方式。
@@ -94,7 +95,7 @@ public class WorkServer extends Thread {
         Map<Integer, Object> gsonMap = GsonUtils.GsonToMap(readLine);               // 将传来的数据读取出来
         Integer command = GsonUtils.Double2Integer((Double) gsonMap.get(COMMAND));  // 获取指令
 
-        HashMap map = new HashMap();    //
+        HashMap map = new HashMap();
         String userName;                // 用户名
         String password;                // 密码
 
@@ -203,8 +204,8 @@ public class WorkServer extends Thread {
      * 将信息广播给所有的用户
      * 主要就是三种信息：信息、登出、注册并登录。
      *
-     * @param message the message
-     * @param type    that contain "message", "logOut", "signUp"
+     * @param message 发送的信息
+     * @param type    包含 "message", "logOut", "signUp"
      */
     private void broadcast(String message, int type) {
         System.out.println(workUser.getUserName() + " 开始广播broadcast " + message);

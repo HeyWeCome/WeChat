@@ -1,9 +1,9 @@
-package com.kang.client.chatroom;
+package com.kang.client.view;
 
 
 import com.kang.client.MainApp;
 import com.kang.client.emojis.EmojiDisplayer;
-import com.kang.client.model.ClientModel;
+import com.kang.client.net.Client;
 import com.kang.client.controller.ControlledStage;
 import com.kang.client.controller.StageController;
 import com.kang.bean.ClientUser;
@@ -53,7 +53,7 @@ public class MainView implements ControlledStage, Initializable {
 
     private Gson gson = new Gson();
     private StageController stageController;
-    private ClientModel model;
+    private Client model;
     private static MainView instance;
     private boolean pattern = GROUP;                    // 聊天的模式，默认不是群聊
     private String seletUser = "[group]";               // 选择的聊天对象，默认是群聊，也可以改成点对点聊天
@@ -78,7 +78,7 @@ public class MainView implements ControlledStage, Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        model = ClientModel.getInstance();                              // 获取到唯一的那个对象
+        model = Client.getInstance();                              // 获取到唯一的那个对象
         uselist = model.getUserList();                                  // 加载用户列表
         chatReccder = model.getChatRecoder();                           // 获取所有的聊天记录
         userGroup.setItems(uselist);
