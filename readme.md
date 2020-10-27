@@ -1,5 +1,4 @@
 #### 设计说明
-[toc]
 #### 功能和特性
 - 基于socket实现的c/s架构的的通信
 - 服务器和客户心跳连接
@@ -14,18 +13,6 @@
 
 #### 功能展示
 - login
-
-![](http://ox6e8ykxi.bkt.clouddn.com/18-5-6/75566823.jpg)
-
-- chatroom
-
-![](http://ox6e8ykxi.bkt.clouddn.com/18-5-6/47280334.jpg)
-
-![](http://ox6e8ykxi.bkt.clouddn.com/18-5-6/37373360.jpg)
-
-![](http://ox6e8ykxi.bkt.clouddn.com/18-5-6/47028216.jpg)
-
 - 表情包
 
-![](http://ox6e8ykxi.bkt.clouddn.com/18-5-6/16077950.jpg)
  

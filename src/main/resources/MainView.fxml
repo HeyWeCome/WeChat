@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kang.client.chatroom.MainView">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kang.client.chatroom.MainView">
    <left>
       <VBox prefHeight="300.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
@@ -82,12 +76,12 @@
                   <TextArea fx:id="textSend" prefHeight="100.0" prefWidth="200.0" />
                   <HBox prefHeight="50.0" prefWidth="200.0" spacing="20.0">
                      <children>
-                        <Button fx:id="btnEmoji" mnemonicParsing="false" onAction="#onEmojiBtnClcked" style="-fx-background-color: orange;" text="emoji">
+                        <Button fx:id="btnEmoji" mnemonicParsing="false" onAction="#onEmojiBtnClcked" style="-fx-background-color: orange;" text="表情">
                            <HBox.margin>
                               <Insets left="250.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="btnSend" mnemonicParsing="false" style="-fx-background-color: orange;" text="send" />
+                        <Button fx:id="btnSend" mnemonicParsing="false" style="-fx-background-color: orange;" text="发送" />
                      </children>
                   </HBox>
                </children>

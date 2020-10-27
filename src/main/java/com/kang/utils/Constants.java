@@ -22,6 +22,7 @@ public class Constants {
     public static Integer  SPEAKER = 0x14;          // 20
     public static Integer  RECEIVER = 0x15;         // 21
     public static Integer  CONTENT= 0x16;           // 22
+    public static Integer  ACCOUNT= 0x17;           // 23
 
 
     // 命令
